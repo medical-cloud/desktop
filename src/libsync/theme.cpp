@@ -221,7 +221,7 @@ bool Theme::singleSyncFolder() const
 
 bool Theme::multiAccount() const
 {
-    return true;
+    return false;
 }
 
 QString Theme::defaultServerFolder() const
