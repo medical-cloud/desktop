@@ -3,6 +3,10 @@ set(CMAKE_CXX_STANDARD 14)
 
 project(client)
 
+if (MSVC)
+    add_definitions("/MP")
+endif()
+
 set(BIN_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 set(OEM_THEME_DIR "" CACHE STRING "Define directory containing a custom theme")
