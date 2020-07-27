@@ -270,7 +270,7 @@ if(NOT BUILD_OWNCLOUD_OSX_BUNDLE)
     else()
         file(GLOB_RECURSE VISUAL_ELEMENTS "${theme_dir}/colored/*-${APPLICATION_ICON_NAME}-w10startmenu*")
         install(FILES ${VISUAL_ELEMENTS} DESTINATION bin/visualelements)
-        install(FILES "${theme_dir}/${APPLICATION_EXECUTABLE}.VisualElementsManifest.xml" DESTINATION bin)
+        install(FILES "${theme_dir}/nextcloud.VisualElementsManifest.xml" DESTINATION bin RENAME "${APPLICATION_EXECUTABLE}.VisualElementsManifest.xml" )
         install(FILES ${client_I18N} DESTINATION i18n)
     endif()
 

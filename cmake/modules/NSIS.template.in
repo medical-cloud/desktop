@@ -1,5 +1,7 @@
 ;ownCloud installer script.
 
+Unicode "true"
+   
 !define APPLICATION_SHORTNAME "@APPLICATION_EXECUTABLE@"
 !define APPLICATION_NAME "@APPLICATION_NAME@"
 !define APPLICATION_VENDOR "@APPLICATION_VENDOR@"
@@ -30,7 +32,7 @@
 ; Some paths.
 ;-----------------------------------------------------------------------------
 !ifndef MING_PATH
-    !define MING_PATH "/usr/i686-w64-mingw32/sys-root/mingw"
+    !define MING_PATH "C:\Qt\Qt5.14.2\5.14.2\msvc2017_64"
 !endif
 !define MING_BIN "${MING_PATH}/bin"
 !define MING_LIB "${MING_PATH}/lib"
@@ -38,10 +40,10 @@
 !define BUILD_PATH "@CMAKE_BINARY_DIR@"
 !define SOURCE_PATH "@CMAKE_SOURCE_DIR@"
 !define QT_DLL_PATH "${MING_BIN}"
-!define ACCESSIBLE_DLL_PATH "${MING_LIB}/qt5/plugins/accessible"
-!define SQLITE_DLL_PATH "${MING_LIB}/qt5/plugins/sqldrivers"
-!define IMAGEFORMATS_DLL_PATH "${MING_LIB}/qt5/plugins/imageformats"
-!define PLATFORMS_DLL_PATH "${MING_LIB}/qt5/plugins/platforms"
+!define ACCESSIBLE_DLL_PATH "${MING_PATH}/plugins/accessible"
+!define SQLITE_DLL_PATH "${MING_PATH}/plugins/sqldrivers"
+!define IMAGEFORMATS_DLL_PATH "${MING_PATH}/plugins/imageformats"
+!define PLATFORMS_DLL_PATH "${MING_PATH}/plugins/platforms"
 
 !define CSYNC_LIBRARY_DIR "@CSYNC_LIBRARY_DIR@"
 !define CSYNC_CONFIG_DIR "@CSYNC_CONFIG_DIR@"
@@ -81,7 +83,7 @@ CRCCheck On
 SetCompressor @CPACK_NSIS_COMPRESSOR@
 RequestExecutionLevel user ;Now using the UAC plugin.
 ReserveFile NSIS.InstallOptions.ini
-ReserveFile "${NSISDIR}\Plugins\InstallOptions.dll"
+ReserveFile "${NSISDIR}\Plugins\x86-unicode\InstallOptions.dll"
 
 @CPACK_NSIS_SECTION_SELECTED_VARS@
 
@@ -112,9 +114,9 @@ ReserveFile "${NSISDIR}\Plugins\InstallOptions.dll"
 !define MUI_ABORTWARNING
 !define MUI_ICON ${NSI_PATH}\installer.ico
 !define MUI_UNICON ${NSI_PATH}\installer.ico
-!define MUI_WELCOMEFINISHPAGE_BITMAP ${WIN_SETUP_BITMAP_PATH}/welcome.bmp
+!define MUI_WELCOMEFINISHPAGE_BITMAP ${WIN_SETUP_BITMAP_PATH}\welcome.bmp
 !define MUI_HEADERIMAGE
-!define MUI_HEADERIMAGE_BITMAP  ${WIN_SETUP_BITMAP_PATH}/page_header.bmp
+!define MUI_HEADERIMAGE_BITMAP  ${WIN_SETUP_BITMAP_PATH}\page_header.bmp
 !define MUI_COMPONENTSPAGE_SMALLDESC
 ; We removed this, h1 issue 191687
 ;!define MUI_FINISHPAGE_LINK "${APPLICATION_DOMAIN}"
@@ -153,8 +155,8 @@ Page custom PageReinstall PageLeaveReinstall
 ;-----------------------------------------------------------------------------
 !insertmacro MUI_LANGUAGE "English"
 
-!include ${source_path}/admin/win/nsi/l10n/languages.nsh
-!include ${source_path}/admin/win/nsi/l10n/declarations.nsh
+!include ${source_path}/admin/win/nsi/l10n\languages.nsh
+!include ${source_path}/admin/win/nsi/l10n\declarations.nsh
 
 ; Set version strings with english locale
 VIProductVersion "${VERSION}"
@@ -169,6 +171,7 @@ VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION}"
       StrCmp $LANGUAGE ${LANG_GERMAN} German 0
       StrCmp $LANGUAGE ${LANG_DUTCH} Dutch 0
       StrCmp $LANGUAGE ${LANG_FINNISH} Finnish 0
+	  StrCmp $LANGUAGE ${LANG_FRENCH} French 0
       StrCmp $LANGUAGE ${LANG_JAPANESE} Japanese 0
       StrCmp $LANGUAGE ${LANG_SLOVENIAN} Slovenian 0
       StrCmp $LANGUAGE ${LANG_SPANISH} Spanish 0
@@ -189,6 +192,9 @@ VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION}"
       Goto EndLanguageCmp
       Finnish:
       !include "${source_path}/admin/win/nsi/l10n\Finnish.nsh"
+      Goto EndLanguageCmp
+      French:
+      !include "${source_path}/admin/win/nsi/l10n\French.nsh"
       Goto EndLanguageCmp
       Japanese:
       !include "${source_path}/admin/win/nsi/l10n\Japanese.nsh"
@@ -384,90 +390,56 @@ Section "${APPLICATION_NAME}" SEC_APPLICATION
    ;Main executable & csync
    File "${BUILD_PATH}\bin\${APPLICATION_EXECUTABLE}"
    File "${BUILD_PATH}\bin\${APPLICATION_CMD_EXECUTABLE}"
-   File "${BUILD_PATH}\bin\lib${APPLICATION_SHORTNAME}sync.dll"
-   File "${BUILD_PATH}\bin\libocsync.dll"
-
+   File "${BUILD_PATH}\bin\${APPLICATION_SHORTNAME}sync.dll"
+   File "${BUILD_PATH}\bin\medicalcloud\ocsync.dll"
+   
+   SetOutPath "$INSTDIR\i18n"
    File "${BUILD_PATH}\src\gui\client*.qm"
    ; Make sure only to copy qt, not qt_help, etc
-   File "${MING_SHARE}\qt5\translations\qt_??.qm"
-   File "${MING_SHARE}\qt5\translations\qt_??_??.qm"
-   File "${MING_SHARE}\qt5\translations\qtbase_*.qm"
-   File "${MING_SHARE}\qt5\translations\qtkeychain_*.qm"
-
+   File "${BUILD_PATH}\bin\translations\qt_*.qm"
+   File "C:\Users\User\Desktop\WIP\qtkeychain\qtkeychain_*.qm"
+   
+   SetOutPath "$INSTDIR"
    ;Add crash reporter if it was built
    File /nonfatal "${BUILD_PATH}/bin/${CRASHREPORTER_EXECUTABLE}.exe"
 
-   SetOutPath "$INSTDIR\platforms"
-   File "${PLATFORMS_DLL_PATH}\qwindows.dll"
+   SetOutPath "$INSTDIR\bearer"
+   File "${BUILD_PATH}/bin/bearer\*.dll"
+   SetOutPath "$INSTDIR\iconengines"
+   File "${BUILD_PATH}/bin/iconengines\*.dll"
    SetOutPath "$INSTDIR\imageformats"
-   File "${IMAGEFORMATS_DLL_PATH}\qgif.dll"
-   File "${IMAGEFORMATS_DLL_PATH}\qjpeg.dll"
-   File "${IMAGEFORMATS_DLL_PATH}\qico.dll"
-   File "${IMAGEFORMATS_DLL_PATH}\qsvg.dll"
-   ; PNG is built in Qt
-
+   File "${BUILD_PATH}/bin/imageformats\*.dll"
+   SetOutPath "$INSTDIR\platforms"
+   File "${BUILD_PATH}/bin/platforms\*.dll"
+   SetOutPath "$INSTDIR\position"
+   File "${BUILD_PATH}/bin/position\*.dll"
+   SetOutPath "$INSTDIR\printsupport"
+   File "${BUILD_PATH}/bin/printsupport\*.dll"
+   SetOutPath "$INSTDIR\styles"
+   File "${BUILD_PATH}/bin/styles\*.dll"
+   SetOutPath "$INSTDIR\resources"
+   File "${BUILD_PATH}/bin/resources\*.pak"
+   File "${BUILD_PATH}/bin/resources\*.dat"
+   
    SetOutPath "$INSTDIR\sqldrivers"
    File "${SQLITE_DLL_PATH}\qsqlite.dll"
 
    SetOutPath "$INSTDIR"
    ;License & release notes.
-   File "@CPACK_RESOURCE_FILE_LICENSE@"
+   ;File "@CPACK_RESOURCE_FILE_LICENSE@"
    ;File /oname=NOTES.txt ${NSI_PATH}\RELEASE_NOTES.txt
 
    ;Qt config:
    File "${NSI_PATH}\qt.conf"
 
-   ;Qt stuff:
-   File "${QT_DLL_PATH}\Qt5Core.dll"
-   File "${QT_DLL_PATH}\Qt5Gui.dll"
-   File "${QT_DLL_PATH}\Qt5Network.dll"
-   File "${QT_DLL_PATH}\Qt5PrintSupport.dll"
-   File "${QT_DLL_PATH}\Qt5Svg.dll"
-   File "${QT_DLL_PATH}\Qt5Qml.dll"
-   File "${QT_DLL_PATH}\Qt5Sql.dll"
-   File "${QT_DLL_PATH}\Qt5WebKit.dll"
-   File "${QT_DLL_PATH}\Qt5WebKitWidgets.dll"
-   File "${QT_DLL_PATH}\Qt5Widgets.dll"
-   File "${QT_DLL_PATH}\Qt5Xml.dll"
-
-   ;QtWebKit dependencies
-   File "${QT_DLL_PATH}\Qt5Multimedia.dll"
-   File "${QT_DLL_PATH}\Qt5MultimediaWidgets.dll"
-   File "${QT_DLL_PATH}\Qt5Sensors.dll"
-
-   ;Qt deps
-   File "${MING_BIN}\libpng16-16.dll"
-   File "${MING_BIN}\icudata56.dll"
-   File "${MING_BIN}\icui18n56.dll"
-   File "${MING_BIN}\icuuc56.dll"
-   File "${MING_BIN}\libEGL.dll"
-   File "${MING_BIN}\libGLESv2.dll"
-   File "${MING_BIN}\libjpeg-8.dll"
-   File "${MING_BIN}\libpcre16-0.dll"
-   File "${MING_BIN}\libsqlite3-0.dll"
-   File "${MING_BIN}\libcrypto-10.dll"
-   File "${MING_BIN}\libssl-10.dll"
-   File "${MING_BIN}\libstdc++-6.dll"
-   File "${MING_BIN}\libwebp-5.dll"
-   File "${MING_BIN}\libxslt-1.dll"
-   File "${MING_BIN}\libxml2-2.dll"
-   File "${MING_BIN}\zlib1.dll"
-   File "${MING_BIN}\libharfbuzz-0.dll"
-   File "${MING_BIN}\libfreetype-6.dll"
-   File "${MING_BIN}\libglib-2.0-0.dll"
-   File "${MING_BIN}\libintl-8.dll"
-
-   ;QtKeyChain stuff
-   File "${MING_BIN}\libqt5keychain.dll"
-
-   ;MinGW stuff
-   File "${MING_BIN}\libgcc_s_sjlj-1.dll"
-   File "${MING_BIN}\libstdc++-6.dll"
-   File "${MING_BIN}\libwinpthread-1.dll"
-   File "${MING_BIN}\libssp-0.dll"
+   ;DLL
+   File "${BUILD_PATH}/bin\*.dll"
+   
+   ;Exe
+   File "${BUILD_PATH}/bin\QtWebEngineProcess.exe"
 
    ;CSync configs
-   File "${SOURCE_PATH}/sync-exclude.lst"
+   File "${BUILD_PATH}/bin\sync-exclude.lst"
 
 SectionEnd
 
@@ -485,14 +457,14 @@ SectionEnd
       !define LIBRARY_IGNORE_VERSION
       ${If} ${RunningX64}
          !define LIBRARY_X64
-         !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "${SOURCE_PATH}\binary\shell_integration\windows\Release\x64\OCUtil_x64.dll" "$INSTDIR\shellext\OCUtil_x64.dll" "$INSTDIR\shellext"
-         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${SOURCE_PATH}\binary\shell_integration\windows\Release\x64\OCOverlays_x64.dll" "$INSTDIR\shellext\OCOverlays_x64.dll" "$INSTDIR\shellext"
-         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${SOURCE_PATH}\binary\shell_integration\windows\Release\x64\OCContextMenu_x64.dll" "$INSTDIR\shellext\OCContextMenu_x64.dll" "$INSTDIR\shellext"
+         !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "${BUILD_PATH}/bin\OCUtil.dll" "$INSTDIR\shellext\OCUtil.dll" "$INSTDIR\shellext"
+         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${BUILD_PATH}/bin\OCOverlays.dll" "$INSTDIR\shellext\OCOverlays.dll" "$INSTDIR\shellext"
+         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${BUILD_PATH}/bin\OCContextMenu.dll" "$INSTDIR\shellext\OCContextMenu.dll" "$INSTDIR\shellext"
          !undef LIBRARY_X64
      ${Else}
-         !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "${SOURCE_PATH}\binary\shell_integration\windows\Release\Win32\OCUtil_x86.dll" "$INSTDIR\shellext\OCUtil_x86.dll" "$INSTDIR\shellext"
-         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${SOURCE_PATH}\binary\shell_integration\windows\Release\Win32\OCOverlays_x86.dll" "$INSTDIR\shellext\OCOverlays_x86.dll" "$INSTDIR\shellext"
-         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${SOURCE_PATH}\binary\shell_integration\windows\Release\Win32\OCContextMenu_x86.dll" "$INSTDIR\shellext\OCContextMenu_x86.dll" "$INSTDIR\shellext"
+         !insertmacro InstallLib DLL NOTSHARED REBOOT_PROTECTED "${BUILD_PATH}/bin\OCUtil.dll" "$INSTDIR\shellext\OCUtil.dll" "$INSTDIR\shellext"
+         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${BUILD_PATH}/bin\OCOverlays.dll" "$INSTDIR\shellext\OCOverlays.dll" "$INSTDIR\shellext"
+         !insertmacro InstallLib REGDLL NOTSHARED REBOOT_PROTECTED "${BUILD_PATH}/bin\OCContextMenu.dll" "$INSTDIR\shellext\OCContextMenu.dll" "$INSTDIR\shellext"
       ${Endif}
       !undef LIBRARY_COM
       !undef LIBRARY_SHELL_EXTENSION
