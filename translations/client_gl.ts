@@ -648,7 +648,7 @@ Agarde a nova sincronización e logo cífreo.</translation>
     <message>
         <location filename="../src/gui/connectionvalidator.cpp" line="50"/>
         <source>No Nextcloud account configured</source>
-        <translation>Non hai configurada ningunha conta Nextcloud </translation>
+        <translation>Non hai configurada ningunha conta Medicalcloud </translation>
     </message>
     <message>
         <location filename="../src/gui/connectionvalidator.cpp" line="147"/>
@@ -1623,7 +1623,7 @@ Os elementos onde se permite a eliminación eliminaranse se impiden que se elimi
     <message>
         <location filename="../src/gui/legalnotice.cpp" line="55"/>
         <source>&lt;p&gt;Copyright 2017-2020 Nextcloud GmbH&lt;br /&gt;Copyright 2012-2018 ownCloud GmbH&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Copyright 2017-2020 Nextcloud GmbH&lt;br /&gt;Copyright 2012-2018 ownCloud GmbH&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Copyright 2018-2020 Medicalcloud SAS&lt;br /&gt;Copyright 2017-2020 Nextcloud GmbH&lt;br /&gt;Copyright 2012-2018 ownCloud GmbH&lt;/p&gt;</translation>
     </message>
     <message>
         <location filename="../src/gui/legalnotice.cpp" line="58"/>
@@ -2193,7 +2193,7 @@ Recomendámoslle que non o use.</translation>
     <message>
         <location filename="../src/gui/owncloudsetupwizard.cpp" line="525"/>
         <source>creating folder on Nextcloud: %1</source>
-        <translation>creando un cartafol no Nextcloud: %1</translation>
+        <translation>creando un cartafol no Medicalcloud: %1</translation>
     </message>
     <message>
         <location filename="../src/gui/owncloudsetupwizard.cpp" line="541"/>
@@ -2940,7 +2940,7 @@ Recomendámoslle que non o use.</translation>
     <message>
         <location filename="../src/gui/socketapi.cpp" line="465"/>
         <source>Share with %1</source>
-        <comment>parameter is Nextcloud</comment>
+        <comment>parameter is Medicalcloud</comment>
         <translation>Compartir con %1</translation>
     </message>
     <message>
@@ -3508,7 +3508,7 @@ Recomendámoslle que non o use.</translation>
     <message>
         <location filename="../src/libsync/theme.cpp" line="355"/>
         <source>&lt;p&gt;%1 Desktop Client&lt;/p&gt;</source>
-        <extracomment>Example text: &quot;&lt;p&gt;Nextcloud Desktop Client&lt;/p&gt;&quot; (%1 is the application name)</extracomment>
+        <extracomment>Example text: &quot;&lt;p&gt;Medicalcloud Desktop Client&lt;/p&gt;&quot; (%1 is the application name)</extracomment>
         <translation>&lt;p&gt;Cliente de escritorio do %1&lt;/p&gt;</translation>
     </message>
     <message>
