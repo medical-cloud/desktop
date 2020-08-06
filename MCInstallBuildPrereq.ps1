@@ -1,6 +1,6 @@
 # Execute in an elevated PS with:
 # 
-# powershell.exe -ExecutionPolicy bypass -File "\\vboxsrv\nextcloud\overlay\MCInstallBuildPrereq.ps1"
+# powershell.exe -ExecutionPolicy bypass -File "\\vboxsrv\nextcloud\desktop\MCInstallBuildPrereq.ps1"
 #
 
 $global:sourcePath="E:\prog_sources"
