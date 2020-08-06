@@ -37,7 +37,7 @@ function getFile {
   }
 }
 
-echo ">> CreateBuildEnv.ps1"
+echo ">> MCInstallBuildPrereq.ps1"
 echo "$((Get-Date).ToString())"
 
 echo ""
@@ -244,5 +244,5 @@ rm -Recurse -Force -Path "$vsPath" -ErrorAction SilentlyContinue
 
 echo ""
 echo "$((Get-Date).ToString())"
-echo "<< CreateBuildEnv.ps1"
+echo "<< MCInstallBuildPrereq.ps1"
 
