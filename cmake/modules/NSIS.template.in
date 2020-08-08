@@ -87,6 +87,42 @@ ReserveFile "${NSISDIR}\Plugins\x86-unicode\InstallOptions.dll"
 
 @CPACK_NSIS_SECTION_SELECTED_VARS@
 
+; https://nsis.sourceforge.io/Signing_an_Uninstaller
+!ifdef IS_INNER_SIGN_UNINSTALLER
+  !echo "Inner uninstaller signing invocation"    ; just to see what's going on
+  OutFile "$%TEMP%\tempinstaller.exe"             ; not really important where this is
+  RequestExecutionLevel user                      ; don't write uninstaller with admin permissions and prevent invoking UAC
+!else
+  !echo "Outer uninstaller signing invocation"
+ 
+  ; Call makensis again against current file, defining INNER.  This writes an installer for us which, when
+  ; it is invoked, will just write the uninstaller to some location, and then exit.
+  
+  ; Note: Keep the makensis /Defines in sync with build-installer-exe.bat !
+  !makensis '/DIS_INNER_SIGN_UNINSTALLER "${__FILE__}"' = 0
+  
+  ; So now run that installer we just created as %TEMP%\tempinstaller.exe.  Since it
+  ; calls quit the return value isn't zero.
+  
+  !system "$%TEMP%\tempinstaller.exe" = 2
+  
+  ; That will have written an uninstaller binary for us.  Now we sign it with your
+  ; favorite code signing tool.
+  
+  ;;!system "SIGNCODE <signing options> $%TEMP%\uninstall.exe" = 0
+  ;!if ${USE_CODE_SIGNING} != 0
+  ;  !system '"${CURRENT_PATH}\sign.bat" "$%TEMP%\uninstall.exe"' = 0
+  ;!endif
+  
+  !system '"C:\Program Files (x86)\Windows Kits\10\bin\10.0.17134.0\x64\signtool.exe" sign /debug /v /n "MEDICALCLOUD SAS" /d "MedicalCloud Sync client" /du "https://www.medicalcloud.fr" /tr $%CERTIFICATE_TIMESTAMP_SERVER% /td "sha256" /fd "sha256" /f $%CERTIFICATE_FILE% /p $%CERTIFICATE_PWD% "$%TEMP%\uninstall.exe"' = 0
+  
+  ; Good.  Now we can carry on writing the real installer.
+   
+  ;OutFile "${INSTALLER_OUTPUT_PATH}\${INSTALLER_FILENAME}"
+  OutFile "@CPACK_TOPLEVEL_DIRECTORY@/@CPACK_OUTPUT_FILE_NAME@"
+  RequestExecutionLevel user ;Now using the UAC plugin.
+!endif
+
 ;-----------------------------------------------------------------------------
 ; Include some required header files.
 ;-----------------------------------------------------------------------------
@@ -530,7 +566,13 @@ Section -post
    SetDetailsPrint textonly
    DetailPrint $UNINSTALLER_FILE_Detail
    SetDetailsPrint listonly
-   WriteUninstaller $INSTDIR\uninstall.exe
+   
+   ;WriteUninstaller $INSTDIR\uninstall.exe
+   !ifndef IS_INNER_SIGN_UNINSTALLER
+      ; this packages the signed uninstaller
+      SetOutPath $INSTDIR
+      File $%TEMP%\uninstall.exe
+   !endif
 
    ;Registry keys required for installer version handling and uninstaller.
    SetDetailsPrint textonly
@@ -687,6 +729,16 @@ SectionEnd
 ##############################################################################
 
 Function .onInit
+
+   !ifdef IS_INNER_SIGN_UNINSTALLER
+      ; If INNER is defined, then we aren't supposed to do anything except write out
+      ; the uninstaller.  This is better than processing a command line option as it means
+      ; this entire code path is not present in the final (real) installer.
+      SetSilent silent
+      WriteUninstaller "$%TEMP%\uninstall.exe"
+      Quit  ; just bail out quickly when running the "inner" installer
+   !endif
+
    SetOutPath $INSTDIR
 
    ${GetParameters} $R0
