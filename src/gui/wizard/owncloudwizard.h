@@ -114,6 +114,7 @@ protected:
 
 private:
     void customizeStyle();
+    void adjustWizardSize();
 
     AccountPtr _account;
     WelcomePage *_welcomePage;

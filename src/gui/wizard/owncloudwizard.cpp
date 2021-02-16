@@ -76,7 +76,6 @@ OwncloudWizard::OwncloudWizard(QWidget *parent)
 
     // note: start Id is set by the calling class depending on if the
     // welcome text is to be shown or not.
-    setWizardStyle(QWizard::ModernStyle);
 
     connect(this, &QWizard::currentIdChanged, this, &OwncloudWizard::slotCurrentPageChanged);
     connect(_setupPage, &OwncloudSetupPage::determineAuthType, this, &OwncloudWizard::determineAuthType);
@@ -90,15 +89,11 @@ OwncloudWizard::OwncloudWizard(QWidget *parent)
 
 
     Theme *theme = Theme::instance();
-    setWindowTitle(tr("%1 Connection Wizard").arg(theme->appNameGUI()));
+    setWindowTitle(tr("Add %1 account").arg(theme->appNameGUI()));
     setWizardStyle(QWizard::ModernStyle);
-    setPixmap(QWizard::BannerPixmap, theme->wizardHeaderBanner());
-    setPixmap(QWizard::LogoPixmap, theme->wizardHeaderLogo());
     setOption(QWizard::NoBackButtonOnStartPage);
     setOption(QWizard::NoBackButtonOnLastPage);
     setOption(QWizard::NoCancelButton);
-    setTitleFormat(Qt::RichText);
-    setSubTitleFormat(Qt::RichText);
     setButtonText(QWizard::CustomButton1, tr("Skip folders configuration"));
 
     // Change the next buttons size policy since we hide it on the
@@ -337,6 +332,37 @@ void OwncloudWizard::changeEvent(QEvent *e)
 void OwncloudWizard::customizeStyle()
 {
     // HINT: Customize wizard's own style here, if necessary in the future (Dark-/Light-Mode switching)
+    auto theme = Theme::instance();
+    auto wizardPalette = palette();
+
+    wizardPalette.setColor(QPalette::Window, theme->wizardHeaderBackgroundColor());
+    QColor colorWindowDisabled(wizardPalette.color(QPalette::Window));
+    colorWindowDisabled.setAlpha(128);
+    wizardPalette.setColor(QPalette::Disabled, QPalette::Window, colorWindowDisabled);
+
+    wizardPalette.setColor(QPalette::Base, theme->wizardHeaderBackgroundColor());
+    QColor colorBaseDisabled(wizardPalette.color(QPalette::Base));
+    colorBaseDisabled.setAlpha(128);
+    wizardPalette.setColor(QPalette::Disabled, QPalette::Base, colorBaseDisabled);
+
+    wizardPalette.setColor(QPalette::WindowText, theme->wizardHeaderTitleColor());
+    QColor colorWindowTextDisabled(wizardPalette.color(QPalette::WindowText));
+    colorWindowTextDisabled.setAlpha(128);
+    wizardPalette.setColor(QPalette::Disabled, QPalette::WindowText, colorWindowTextDisabled);
+
+    wizardPalette.setColor(QPalette::Text, theme->wizardHeaderTitleColor());
+    QColor colorTextDisabled(wizardPalette.color(QPalette::Text));
+    colorTextDisabled.setAlpha(128);
+    wizardPalette.setColor(QPalette::Disabled, QPalette::Text, colorWindowTextDisabled);
+
+    // Set separator color
+    wizardPalette.setColor(QPalette::Mid, theme->wizardHeaderBackgroundColor());
+
+    setPalette(wizardPalette);
+
+    WizardCommon::customizePrimaryButtonStyle(button(QWizard::NextButton));
+    WizardCommon::customizeSecondaryButtonStyle(button(QWizard::CustomButton1));
+    WizardCommon::customizeSecondaryButtonStyle(button(QWizard::BackButton));
 }
 
 void OwncloudWizard::bringToTop()
