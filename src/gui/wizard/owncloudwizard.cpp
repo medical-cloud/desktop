@@ -54,7 +54,7 @@ OwncloudWizard::OwncloudWizard(QWidget *parent)
     , _httpCredsPage(new OwncloudHttpCredsPage(this))
     , _browserCredsPage(new OwncloudOAuthCredsPage)
     , _flow2CredsPage(new Flow2AuthCredsPage)
-    , _advancedSetupPage(new OwncloudAdvancedSetupPage)
+    , _advancedSetupPage(new OwncloudAdvancedSetupPage(this))
     , _resultPage(new OwncloudWizardResultPage)
     , _webViewPage(new WebViewPage(this))
 {
@@ -112,6 +112,37 @@ OwncloudWizard::OwncloudWizard(QWidget *parent)
 
     // allow Flow2 page to poll on window activation
     connect(this, &OwncloudWizard::onActivate, _flow2CredsPage, &Flow2AuthCredsPage::slotPollNow);
+
+    adjustWizardSize();
+}
+
+void OwncloudWizard::adjustWizardSize()
+{
+    QList<QSize> pageSizes;
+    const auto pIds = pageIds();
+    std::transform(pIds.begin(), pIds.end(), std::back_inserter(pageSizes), [this](int pageId) {
+        auto p = page(pageId);
+
+        p->adjustSize();
+
+        return p->sizeHint();
+    });
+
+    const auto maxPageSizeIter = std::max_element(pageSizes.begin(), pageSizes.end(), [](const QSize &size1, const QSize &size2) {
+        const auto size1Widest = size1.width() > size1.height() ? size1.width() : size1.height();
+        const auto size2Widest = size2.width() > size2.height() ? size2.width() : size2.height();
+
+        if (size1Widest < size2Widest) {
+            return true;
+        }
+
+        return false;
+    });
+
+    Q_ASSERT(maxPageSizeIter != pageSizes.end());
+    const auto maxPageSizeWidest = maxPageSizeIter->width() > maxPageSizeIter->height() ? maxPageSizeIter->width() : maxPageSizeIter->height();
+    const QSize newWizardSize(maxPageSizeWidest, maxPageSizeWidest);
+    resize(newWizardSize);
 }
 
 void OwncloudWizard::setAccount(AccountPtr account)
@@ -232,7 +263,6 @@ void OwncloudWizard::slotCurrentPageChanged(int id)
         auto nextButton = qobject_cast<QPushButton *>(button(QWizard::NextButton));
         if (nextButton) {
             nextButton->setDefault(true);
-            nextButton->setFocus();
         }
     };
 

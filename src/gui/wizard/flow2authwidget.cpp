@@ -17,6 +17,7 @@
 #include "common/utility.h"
 #include "account.h"
 #include "wizard/owncloudwizardcommon.h"
+#include "theme.h"
 
 #include "QProgressIndicator.h"
 
@@ -34,13 +35,21 @@ Flow2AuthWidget::Flow2AuthWidget(QWidget *parent)
     WizardCommon::initErrorLabel(_ui.errorLabel);
     _ui.errorLabel->setTextFormat(Qt::RichText);
 
-    connect(_ui.openLinkButton, &QCommandLinkButton::clicked, this, &Flow2AuthWidget::slotOpenBrowser);
-    connect(_ui.copyLinkButton, &QCommandLinkButton::clicked, this, &Flow2AuthWidget::slotCopyLinkToClipboard);
+    connect(_ui.openLinkButton, &QPushButton::clicked, this, &Flow2AuthWidget::slotOpenBrowser);
+    connect(_ui.copyLinkButton, &QPushButton::clicked, this, &Flow2AuthWidget::slotCopyLinkToClipboard);
 
-    _ui.horizontalLayout->addWidget(_progressIndi);
+    auto sizePolicy = _progressIndi->sizePolicy();
+    sizePolicy.setRetainSizeWhenHidden(true);
+    _progressIndi->setSizePolicy(sizePolicy);
+
+    _ui.progressLayout->addWidget(_progressIndi);
     stopSpinner(false);
+}
 
-    customizeStyle();
+void Flow2AuthWidget::setLogo()
+{
+    const auto backgroundColor = palette().window().color();
+    _ui.logoLabel->setPixmap(Theme::hidpiFileName("external.png", backgroundColor));
 }
 
 void Flow2AuthWidget::startAuth(Account *account)
@@ -160,7 +169,7 @@ void Flow2AuthWidget::slotStatusChanged(Flow2Auth::PollStatus status, int second
 
 void Flow2AuthWidget::startSpinner()
 {
-    _ui.horizontalLayout->setEnabled(true);
+    _ui.progressLayout->setEnabled(true);
     _ui.statusLabel->setVisible(true);
     _progressIndi->setVisible(true);
     _progressIndi->startAnimation();
@@ -171,7 +180,7 @@ void Flow2AuthWidget::startSpinner()
 
 void Flow2AuthWidget::stopSpinner(bool showStatusLabel)
 {
-    _ui.horizontalLayout->setEnabled(false);
+    _ui.progressLayout->setEnabled(false);
     _ui.statusLabel->setVisible(showStatusLabel);
     _progressIndi->setVisible(false);
     _progressIndi->stopAnimation();
@@ -187,8 +196,21 @@ void Flow2AuthWidget::slotStyleChanged()
 
 void Flow2AuthWidget::customizeStyle()
 {
-    if(_progressIndi)
-        _progressIndi->setColor(QGuiApplication::palette().color(QPalette::Text));
+    setLogo();
+
+    if (_progressIndi) {
+        const auto isDarkBackground = Theme::isDarkColor(palette().window().color());
+        if (isDarkBackground) {
+            _progressIndi->setColor(Qt::white);
+        } else {
+            _progressIndi->setColor(Qt::black);
+        }
+    }
+
+    WizardCommon::customizeLinkButtonStyle(_ui.openLinkButton);
+    WizardCommon::customizeLinkButtonStyle(_ui.copyLinkButton);
+
+    WizardCommon::customizeHintLabel(_ui.statusLabel);
 }
 
 } // namespace OCC
